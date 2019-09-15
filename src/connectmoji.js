@@ -24,5 +24,33 @@ function rowColToIndex(board, row, col) {
 	return idx;
 }
 
+function indexToRowCol(board, i) {
+	
+	let totalRows = board.rows;
+	let totalCols = board.cols;
+	
+	const row = Math.floor(i / totalCols);
+	const col = i - (row * totalCols);
+	
+	const rowCol = {
+		row: row;
+		col: col;
+	}
+	return rowCol;
+}
 
-		
+function setCell(board, row, col, value) {
+	
+	const newBoard = {
+		data:  [...board.data],
+		rows: board.rows,
+		cols: board.cols
+	};
+	
+	const idx = rowColToIndex(newBoard, row, col);
+	newBoard.data[idx] = value;
+	
+	return newBoard;
+}
+
+	
