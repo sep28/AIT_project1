@@ -4,6 +4,7 @@
 const wcwidth = require('wcwidth');
 const clear = require('clear');
 const readlineSync = require('readline-sync');
+const colLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
 
 
@@ -79,11 +80,9 @@ function boardToString(board) {
 	
 	const totalRows = board.rows;
 	const totalCols = board.cols;
-	
-	const colLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
-	var widestCell = 0;
-	var boardString = '';
+	let widestCell = 0;
+	let boardString = '';
 	
 	for (let i = 0; i < board.data.length; i++) {
 		if (board.data[i].wcwidth > widestCell) {
@@ -109,7 +108,7 @@ function boardToString(board) {
 					boardString += ' ';
 				}
 				boardString += val;
-				for (let count = 0; count < (pad  - Math.floor(pad/2)); count++) {
+				for (let count = 0; count < (pad - Math.floor(pad/2)); count++) {
 					boardString += ' ';
 				}
 			}
@@ -141,7 +140,7 @@ function boardToString(board) {
 }
 
 function letterToCol(letter) {
-	if (coLabels.includes(letter)) {	
+	if (colLabels.includes(letter)) {	
 		for (let colNumber = 0; colNumber < colLabels.length; colNumber++) {
 			if (colLabels[colNumber] === letter) {
 				return colNumber;
@@ -149,7 +148,7 @@ function letterToCol(letter) {
 		}
 	}		
 	else {
-		return null
+		return null;
 	}	
  }
 
@@ -158,9 +157,9 @@ function letterToCol(letter) {
  	if (colLabels.includes(letter)) {
  		const column = letterToCol(letter);
 
- 		for (let (i = totalRows - 1); i >= 0; i--) {
+ 		for (let i = (totalRows - 1); i >= 0; i--) {
  			let index = rowColToIndex(board, i, column);
- 			if(board[index] === null) {
+ 			if(board[index] === empty) {
  				const empty = {};
  				empty.row = i;
  				empty.col = column;
@@ -177,13 +176,13 @@ function letterToCol(letter) {
  function getAvailableColumns(board) {
  	const totalRows = board.rows;
  	const totalCols = board.cols;
- 	var emptyCells = [];
+ 	let emptyCells = [];
 
- 	for (let j = 0; j < totalCols) { //check each column starting from highest row for empty cell, if found add it to the array and check next col
- 		for ((let i = totalRows - 1); i >= 0; i--) {
- 			let idx = rowColToIndex(boarc, i, j);
+ 	for (let j = 0; j < totalCols; j++) { //check each column starting from highest row for empty cell, if found add it to the array and check next col
+ 		for (let i = (totalRows - 1); i >= 0; i--) {
+ 			let idx = rowColToIndex(board, i, j);
  			if (board[idx] === null) {
- 				emptyCells.push(coLabels[j]);
+ 				emptyCells.push(colLabels[j]);
  				break;
  			}
  		}
@@ -198,25 +197,26 @@ function letterToCol(letter) {
  		lastPieceMoved: null
  	};
  	const instructions = s.split();
- 	result.pieces.push(moves[0]);
- 	result.pieces.push(moves[1]);
+ 	result.pieces.push(instructions[0]);
+ 	result.pieces.push(instructions[1]);
  	const moves = instructions.slice(2);
 
  	let playerTurn = 1; //start with the first player
+ 	let playerPiece = null;
 
  	for (let i = 0; i < moves.length; i++) {
 
- 		let winner = false;
+ 		//let winner = false;
  		let col = letterToCol(moves[i]);
  		//the next if-else block determines whose turn it is every time a new move is made
- 		if(playerTurn % 2 == 0) {
- 			let playerPiece = result.pieces[1];
+ 		if(playerTurn % 2 === 0) {
+ 			playerPiece = result.pieces[1];
  		}
  		else {
- 			let playerPiece = result.pieces[0];
+ 			playerPiece = result.pieces[0];
  		}
 
- 		for ((let row = board.totalRows - 1); row >= 0, row-- ) {
+ 		for (let row = (board.totalRows - 1); row >= 0; row-- ) {
  			let idx = rowColToIndex(board, row, col);
 
  			if (board[idx] === null) {
@@ -224,14 +224,17 @@ function letterToCol(letter) {
  				break; //advance to the next move
  			}
  			else {
- 				if(row == 0) {
+ 				if(row === 0) {
  					result.lastPieceMoved = playerPiece;
  					result.error = {
  						num: i + 1,
  						val: playerPiece,
  						col: col
- 					}
+ 					};
  					return result;
+ 				}
+ 				else {
+ 					continue;
  				}
  			}
  		}
@@ -247,7 +250,7 @@ function letterToCol(letter) {
  				else if (board[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
  					consectCount++;
  					if(consectCount === numConsecutive) {
- 						winner = true;
+ 						//winner = true;
  						result.winner = playerPiece;
  						return result;
  					}
@@ -258,8 +261,8 @@ function letterToCol(letter) {
  				}
  			}
  		}
- 		let mostRecentPiece = null;
- 		let consectCount = 0;
+ 		mostRecentPiece = null;
+ 		consectCount = 0;
  		 for(let vSweep = 0; vSweep < board.totalCols; vSweep++) { //sweeping every column
  			for(let rowPos = (board.totalRows - 1); rowPos >= 0; rowPos--) {
  				let idx = rowColToIndex(board, rowPos, vSweep);
@@ -269,7 +272,7 @@ function letterToCol(letter) {
  				else if (board[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
  					consectCount++;
  					if(consectCount === numConsecutive) {
- 						winner = true;
+ 						//winner = true;
  						result.winner = playerPiece;
  						return result;
  					}
