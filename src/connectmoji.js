@@ -141,12 +141,36 @@ function boardToString(board) {
 }
 
 function letterToCol(letter) {
-
-	for (let colNumber = 0; colNumber < colLabels.length; colNumber++) {
-		if (colLabels[colNumber] === letter) {
-			return colNumber;
+	if (coLabels.includes(letter)) {	
+		for (let colNumber = 0; colNumber < colLabels.length; colNumber++) {
+			if (colLabels[colNumber] === letter) {
+				return colNumber;
+			}
 		}
-	}
-	return null;
-}
- 
+	}		
+	else {
+		return null
+	}	
+ }
+
+ function getEmptyRowCol(board, letter, empty = null) {
+ 	const totalRows = board.rows;
+ 	if (colLabels.includes(letter)) {
+ 		const column = letterToCol(letter);
+
+ 		for (let (i = totalRows - 1); i >= 0; i--) {
+ 			let index = rowColToIndex(board, i, column);
+ 			if(board[index] === null) {
+ 				const empty = {};
+ 				empty.row = i;
+ 				empty.col = column;
+ 				return empty;
+ 			}
+ 		}
+ 		return null;	
+ 	}
+ 	else { //the letter parameter is invalid
+ 		return null;
+ 	}
+ }
+	
