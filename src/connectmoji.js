@@ -70,7 +70,7 @@ function setCells(board, ...Moves) {
 	
 	for (let i = 0; i< Moves.length; i++) {
 		let idx = rowColToIndex(newBoard, Moves[i].row, Moves[i].col);
-		newBoard[idx] = Moves[i].val;
+		newBoard.data[idx] = Moves[i].val;
 	}
 
 }
@@ -159,7 +159,7 @@ function letterToCol(letter) {
 
  		for (let i = (totalRows - 1); i >= 0; i--) {
  			let index = rowColToIndex(board, i, column);
- 			if(board[index] === empty) {
+ 			if(board.data[index] === empty) {
  				const empty = {};
  				empty.row = i;
  				empty.col = column;
@@ -181,7 +181,7 @@ function letterToCol(letter) {
  	for (let j = 0; j < totalCols; j++) { //check each column starting from highest row for empty cell, if found add it to the array and check next col
  		for (let i = (totalRows - 1); i >= 0; i--) {
  			let idx = rowColToIndex(board, i, j);
- 			if (board[idx] === null) {
+ 			if (board.data[idx] === null) {
  				emptyCells.push(colLabels[j]);
  				break;
  			}
@@ -189,6 +189,62 @@ function letterToCol(letter) {
  	}
  	return emptyCells;
  }
+
+function hasConsecutiveValues(board, row, col, n) {
+	const idx = rowColToIndex(board, row, col);
+	const val = board.data[idx];
+	let count = 0;
+
+	//check horizontally
+	for(let i = 0; i < board.totalCols; i++) {
+		let pos = rowColToIndex(board, row, i);
+		if (board.data[pos] === val) {
+			count++;
+			if (count >= n) {
+				return true;
+			}
+		}
+		else {
+			count = 0;
+		}
+	}
+
+	//check vertically
+	count = 0;
+	for(let j = (board.totalRows -1); j >= 0; j--) {
+		let pos = rowColToIndex(board, j, col);
+		if (board.data[pos] === val) {
+			count++;
+			if (count >= n) {
+				return true;
+			}
+		}
+		else {
+			count = 0;
+		}	
+	}
+
+	//check diagonally
+	count = 0;
+	let rowPos = board.totalRows - 1;
+	let colPos = 0;
+	while (rowPos >= 0 || colPos < board.totalCols) {
+		let pos = rowColToIndex(board, rowPos, colPos);
+		if(board.data[pos] === val) {
+			count++;
+			if (count >= n) {
+				return true;
+			}
+		}
+		else {
+			count = 0;
+		}
+		rowPos--;
+		colPos++;
+	}
+	return false;
+}
+
 
  function autoplay(board, s, numConsecutive) {
  	const result = {
@@ -219,35 +275,40 @@ function letterToCol(letter) {
  		for (let row = (board.totalRows - 1); row >= 0; row-- ) {
  			let idx = rowColToIndex(board, row, col);
 
- 			if (board[idx] === null) {
- 				board[idx] = playerPiece;
- 				break; //advance to the next move
- 			}
- 			else {
- 				if(row === 0) {
- 					result.lastPieceMoved = playerPiece;
- 					result.error = {
- 						num: i + 1,
- 						val: playerPiece,
- 						col: col
- 					};
+ 			if (board.data[idx] === null) { //found a valid empty cell to drop our piece
+ 				board.data[idx] = playerPiece;
+ 				if (hasConsecutiveValues(board, row, col, numConsecutive)) { //we placed a piece, lets check for a winner
+ 					result.winner = playerPiece;
  					return result;
  				}
  				else {
- 					continue;
+ 					break; //no winner advance to the next move
  				}
  			}
+ 			else if(row === 0) { //row is full
+ 				result.lastPieceMoved = playerPiece;
+ 				result.error = {
+ 					num: i + 1,
+ 					val: playerPiece,
+ 					col: col
+ 				};
+ 				return result;
+ 			}
+ 			else { //cell is not empty, lets check the one above it
+ 				continue;
+ 			}
  		}
+ 		/*
  		//after every move, we sweep the board to see if there is a winner
  		let mostRecentPiece = null;
  		let consectCount = 0;
  		for(let hSweep = (board.totalRows - 1); hSweep >= 0; hSweep--) { //sweeping every row
  			for(let colPos = 0; colPos < board.totalCols; colPos++) {
  				let idx = rowColToIndex(board, hSweep, colPos);
- 				if(board[idx] === null) { //if there is an empty cell
+ 				if(board.data[idx] === null) { //if there is an empty cell
  					break;
  				}
- 				else if (board[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
+ 				else if (board.data[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
  					consectCount++;
  					if(consectCount === numConsecutive) {
  						//winner = true;
@@ -266,10 +327,10 @@ function letterToCol(letter) {
  		 for(let vSweep = 0; vSweep < board.totalCols; vSweep++) { //sweeping every column
  			for(let rowPos = (board.totalRows - 1); rowPos >= 0; rowPos--) {
  				let idx = rowColToIndex(board, rowPos, vSweep);
- 				if(board[idx] === null) { //if there is an empty cell
+ 				if(board.data[idx] === null) { //if there is an empty cell
  					break;
  				}
- 				else if (board[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
+ 				else if (board.data[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
  					consectCount++;
  					if(consectCount === numConsecutive) {
  						//winner = true;
@@ -285,8 +346,24 @@ function letterToCol(letter) {
  			}
  		}
  		//after a move is complete and no winner, next player's turn
+ 		*/
  		playerTurn++;
- 	}
- 	return result;
+	}
+	return result;
 }
+
+module.exports = {
+	generateBoard: generateBoard,
+	rowColToIndex: rowColToIndex,
+	indexToRowCol: indexToRowCol,
+	setCell: setCell,
+	setCells: setCells,
+	boardToString: boardToString,
+	letterToCol: letterToCol,
+	getEmptyRowCol: getEmptyRowCol,
+	getAvailableColumns: getAvailableColumns,
+	hasConse
+
+}
+
 	
