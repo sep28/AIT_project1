@@ -32,16 +32,16 @@ function rowColToIndex(board, row, col) {
 
 function indexToRowCol(board, i) {
 	
-	let totalRows = board.rows;
-	let totalCols = board.cols;
+	const totalRows = board.rows;
+	const totalCols = board.cols;
 	
 	const row = Math.floor(i / totalCols);
 	const col = i - (row * totalCols);
 	
 	const rowCol = {
-		row: row;
-		col: col;
-	}
+		row: row,
+		col: col
+	};
 	return rowCol;
 }
 
@@ -97,7 +97,7 @@ function boardToString(board) {
 		for (let colCount = 0; colCount < totalCols; colCount++) {
 			boardString += '|';
 			let idx = rowColToIndex(board, rowCount, colCount);
-			if (board.data[idx] == null || board.data[idx] == '') {
+			if (board.data[idx] === null || board.data[idx] === '') {
 				for (let count = 0; count < widestCell; count ++) {
 					boardString += ' ';
 				}
@@ -129,11 +129,11 @@ function boardToString(board) {
 	boardString += '|';
 	for (let colCount = 0; colCount < totalCols; colCount++) {
 		let labelWidth = widestCell - colLabels[colCount].wcwidth;
-		for (let pos = 0; pos < Math.floor(labelwidth/2); pos++) {
+		for (let pos = 0; pos < Math.floor(labelWidth/2); pos++) {
 			boardString += ' ';
 		}
 		boardString += colLabels[colCount];
-		for (let pos = 0; pos < (labelWidth - Math.floor(labelwidth/2)); pos++) {
+		for (let pos = 0; pos < (labelWidth - Math.floor(labelWidth/2)); pos++) {
 			boardString += ' ';
 		}
 	}
