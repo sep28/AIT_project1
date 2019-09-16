@@ -113,5 +113,40 @@ function boardToString(board) {
 					boardString += ' ';
 				}
 			}
-			boardString += '| \n';
-		} 	
+			boardString += '|\n';
+		}
+	}
+	boardString += '|';
+
+	for (let colCount = 0; colCount < totalCols; colCount++) {
+		for (let dashCount = 0; dashCount < widestCell; dashCount++) {
+			boardString += '-';
+		}
+		boardString += '+';
+	}
+	boardString += '|\n';
+	
+	boardString += '|';
+	for (let colCount = 0; colCount < totalCols; colCount++) {
+		let labelWidth = widestCell - colLabels[colCount].wcwidth;
+		for (let pos = 0; pos < Math.floor(labelwidth/2); pos++) {
+			boardString += ' ';
+		}
+		boardString += colLabels[colCount];
+		for (let pos = 0; pos < (labelWidth - Math.floor(labelwidth/2)); pos++) {
+			boardString += ' ';
+		}
+	}
+	boardString += '|';
+}
+
+function letterToCol(letter) {
+
+	for (let colNumber = 0; colNumber < colLabels.length; colNumber++) {
+		if (colLabels[colNumber] === letter) {
+			return colNumber;
+		}
+	}
+	return null;
+}
+ 
