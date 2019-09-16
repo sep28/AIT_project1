@@ -173,4 +173,117 @@ function letterToCol(letter) {
  		return null;
  	}
  }
+
+ function getAvailableColumns(board) {
+ 	const totalRows = board.rows;
+ 	const totalCols = board.cols;
+ 	var emptyCells = [];
+
+ 	for (let j = 0; j < totalCols) { //check each column starting from highest row for empty cell, if found add it to the array and check next col
+ 		for ((let i = totalRows - 1); i >= 0; i--) {
+ 			let idx = rowColToIndex(boarc, i, j);
+ 			if (board[idx] === null) {
+ 				emptyCells.push(coLabels[j]);
+ 				break;
+ 			}
+ 		}
+ 	}
+ 	return emptyCells;
+ }
+
+ function autoplay(board, s, numConsecutive) {
+ 	const result = {
+ 		board : {},
+ 		pieces : [],
+ 		lastPieceMoved: null
+ 	};
+ 	const instructions = s.split();
+ 	result.pieces.push(moves[0]);
+ 	result.pieces.push(moves[1]);
+ 	const moves = instructions.slice(2);
+
+ 	let playerTurn = 1; //start with the first player
+
+ 	for (let i = 0; i < moves.length; i++) {
+
+ 		let winner = false;
+ 		let col = letterToCol(moves[i]);
+ 		//the next if-else block determines whose turn it is every time a new move is made
+ 		if(playerTurn % 2 == 0) {
+ 			let playerPiece = result.pieces[1];
+ 		}
+ 		else {
+ 			let playerPiece = result.pieces[0];
+ 		}
+
+ 		for ((let row = board.totalRows - 1); row >= 0, row-- ) {
+ 			let idx = rowColToIndex(board, row, col);
+
+ 			if (board[idx] === null) {
+ 				board[idx] = playerPiece;
+ 				break; //advance to the next move
+ 			}
+ 			else {
+ 				if(row == 0) {
+ 					result.lastPieceMoved = playerPiece;
+ 					result.error = {
+ 						num: i + 1,
+ 						val: playerPiece,
+ 						col: col
+ 					}
+ 					return result;
+ 				}
+ 			}
+ 		}
+ 		//after every move, we sweep the board to see if there is a winner
+ 		let mostRecentPiece = null;
+ 		let consectCount = 0;
+ 		for(let hSweep = (board.totalRows - 1); hSweep >= 0; hSweep--) { //sweeping every row
+ 			for(let colPos = 0; colPos < board.totalCols; colPos++) {
+ 				let idx = rowColToIndex(board, hSweep, colPos);
+ 				if(board[idx] === null) { //if there is an empty cell
+ 					break;
+ 				}
+ 				else if (board[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
+ 					consectCount++;
+ 					if(consectCount === numConsecutive) {
+ 						winner = true;
+ 						result.winner = playerPiece;
+ 						return result;
+ 					}
+ 				}
+ 				else { //the cell contains a different value than the previous adjacent cell
+ 					mostRecentPiece = playerPiece;
+ 					consectCount = 0;
+ 				}
+ 			}
+ 		}
+ 		let mostRecentPiece = null;
+ 		let consectCount = 0;
+ 		 for(let vSweep = 0; vSweep < board.totalCols; vSweep++) { //sweeping every column
+ 			for(let rowPos = (board.totalRows - 1); rowPos >= 0; rowPos--) {
+ 				let idx = rowColToIndex(board, rowPos, vSweep);
+ 				if(board[idx] === null) { //if there is an empty cell
+ 					break;
+ 				}
+ 				else if (board[idx] === mostRecentPiece) { //if the cell contains same piece as the cell adjacent to it
+ 					consectCount++;
+ 					if(consectCount === numConsecutive) {
+ 						winner = true;
+ 						result.winner = playerPiece;
+ 						return result;
+ 					}
+
+ 				}
+ 				else { //the cell contains a different value than the previous adjacent cell
+ 					mostRecentPiece = playerPiece;
+ 					consectCount = 0;
+ 				}
+ 			}
+ 		}
+ 		//after a move is complete and no winner, next player's turn
+ 		playerTurn++;
+ 	}
+ 	return result;
+}
 	
