@@ -20,6 +20,12 @@ if (process.argv[2] != null) {
 	}
 	else {
 		console.log(c.boardToString(board));
+		if (result.lastPieceMoved == optionsAndMoves[0]) {
+			console.log("It's your turn now!\n");
+		}
+		else {
+			console.log("It's the computer's turn now...");
+		}
 
 	}
 	//console.log(c.boardToString(board));
