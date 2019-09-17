@@ -22,6 +22,7 @@ if (process.argv[2] != null) {
 		console.log(c.boardToString(board));
 		if (result.lastPieceMoved == optionsAndMoves[0]) {
 			console.log("It's your turn now!\n");
+			var userMove = readlineSync.question("Please press enter your move.../n");
 		}
 		else {
 			console.log("It's the computer's turn now...\n");
