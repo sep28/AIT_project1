@@ -24,7 +24,7 @@ if (process.argv[2] != null) {
 			console.log("It's your turn now!\n");
 		}
 		else {
-			console.log("It's the computer's turn now...");
+			console.log("It's the computer's turn now...\n");
 		}
 
 	}
