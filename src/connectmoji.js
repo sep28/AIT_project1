@@ -61,18 +61,17 @@ function setCell(board, row, col, value) {
 }
 
 function setCells(board, ...Moves) {
-
 	const newBoard = {
 		data: [...board.data],
 		rows: board.rows,
 		cols: board.cols
 	};
-	
-	for (let i = 0; i< Moves.length; i++) {
+
+	for (let i = 0; i < Moves.length; i++) {
 		let idx = rowColToIndex(newBoard, Moves[i].row, Moves[i].col);
 		newBoard.data[idx] = Moves[i].val;
 	}
-
+	return newBoard;
 }
 
 
@@ -85,7 +84,7 @@ function boardToString(board) {
 	let boardString = '';
 	
 	for (let i = 0; i < board.data.length; i++) {
-		if (board.data[i].wcwidth > widestCell) {
+		if ((board.data[i] !== null) && (board.data[i].wcwidth > widestCell)) {
 			widestCell = board.data[i].wcwidth;
 		}
 	}
@@ -112,8 +111,8 @@ function boardToString(board) {
 					boardString += ' ';
 				}
 			}
-			boardString += '|\n';
 		}
+		boardString += '|\n';
 	}
 	boardString += '|';
 
@@ -137,7 +136,9 @@ function boardToString(board) {
 		}
 	}
 	boardString += '|';
+	return boardString;	
 }
+//}
 
 function letterToCol(letter) {
 	if (colLabels.includes(letter)) {	
@@ -154,16 +155,55 @@ function letterToCol(letter) {
 
  function getEmptyRowCol(board, letter, empty = null) {
  	const totalRows = board.rows;
- 	if (colLabels.includes(letter)) {
- 		const column = letterToCol(letter);
+ 	let existingColumns = colLabels.slice(0,board.cols);
 
+ 	if (existingColumns.includes(letter)) {
+ 		const column = letterToCol(letter);
  		for (let i = (totalRows - 1); i >= 0; i--) {
+ 			let validEmptyCell = true;
  			let index = rowColToIndex(board, i, column);
- 			if(board.data[index] === empty) {
- 				const empty = {};
- 				empty.row = i;
- 				empty.col = column;
- 				return empty;
+ 			if(board.data[index] === empty) { //&& ((board.data[index] != empty) || (board.data[index + 1] != empty))) {
+
+ 				/*if (i === (totalRows - 1)) {//checking to see if there is a hole above
+ 					let topIndex = rowColToIndex(board, i -1, column);
+ 					if (board.data[topIndex] !== empty) {
+ 						validEmptyCell = false;
+ 					}
+ 				}*/
+ 				if (i > 0) { //checking to see if there are holes above
+
+ 					for(let topCheck = i - 1; topCheck >= 0; topCheck--) {
+ 						let topIndex = rowColToIndex(board, topCheck, column);
+ 						if (board.data[topIndex] !== empty) {
+ 							validEmptyCell = false;
+ 							break;
+ 						}
+ 					}
+ 					/*
+ 					let topIndex = rowColToIndex(board, i -1, column);
+ 					let botIndex = rowColToIndex(board, i + 1, column);
+ 					if ((board.data[topIndex] !== empty && board.data[botIndex] !== empty)) {
+ 						validEmptyCell = false;
+ 					}
+ 					*/
+ 				}
+
+ 				else { //checking for holes below
+ 					let botIndex = rowColToIndex(board, i + 1, column);
+ 					if (board.data[botIndex] === empty) {
+ 						validEmptyCell = false;
+ 					}
+ 				}
+ 				if (validEmptyCell) {
+ 					const empty = {};
+ 					empty.row = i;
+ 					empty.col = column;
+ 					return empty;
+ 				}
+ 
+ 			}
+ 			else {
+ 				continue;
  			}
  		}
  		return null;	
@@ -362,8 +402,8 @@ module.exports = {
 	letterToCol: letterToCol,
 	getEmptyRowCol: getEmptyRowCol,
 	getAvailableColumns: getAvailableColumns,
-	hasConse
-
-}
+	hasConsecutiveValues: hasConsecutiveValues,
+	autoplay: autoplay
+};
 
 	
