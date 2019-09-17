@@ -292,17 +292,27 @@ function hasConsecutiveValues(board, row, col, n) {
  		pieces : [],
  		lastPieceMoved: null
  	};
- 	const instructions = s.split();
+ 	const instructions = s.split("");
  	result.pieces.push(instructions[0]);
  	result.pieces.push(instructions[1]);
  	const moves = instructions.slice(2);
 
+ 	let winner = false;
  	let playerTurn = 1; //start with the first player
  	let playerPiece = null;
 
  	for (let i = 0; i < moves.length; i++) {
 
- 		//let winner = false;
+ 		if (winner === true) {
+ 			result.lastPieceMoved = playerPiece;
+ 			result.error = {
+ 				board: null,
+ 				num: i + 1,
+ 				val: playerPiece,
+ 				col: col
+ 			};
+ 			return result;
+ 		}
  		let col = letterToCol(moves[i]);
  		//the next if-else block determines whose turn it is every time a new move is made
  		if(playerTurn % 2 === 0) {
@@ -319,7 +329,8 @@ function hasConsecutiveValues(board, row, col, n) {
  				board.data[idx] = playerPiece;
  				if (hasConsecutiveValues(board, row, col, numConsecutive)) { //we placed a piece, lets check for a winner
  					result.winner = playerPiece;
- 					return result;
+ 					result.board = board;
+ 					winner = true;
  				}
  				else {
  					break; //no winner advance to the next move
@@ -328,6 +339,7 @@ function hasConsecutiveValues(board, row, col, n) {
  			else if(row === 0) { //row is full
  				result.lastPieceMoved = playerPiece;
  				result.error = {
+ 					board: null,
  					num: i + 1,
  					val: playerPiece,
  					col: col
@@ -385,8 +397,8 @@ function hasConsecutiveValues(board, row, col, n) {
  				}
  			}
  		}
- 		//after a move is complete and no winner, next player's turn
  		*/
+ 		//after a move is complete and no winner, next player's turn
  		playerTurn++;
 	}
 	return result;
